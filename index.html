@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hitster Web Player</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-white min-h-screen flex items-center justify-center p-4 font-sans">
+  <div class="max-w-sm w-full bg-slate-900 p-6 rounded-3xl shadow-2xl border border-slate-800 text-center">
+    
+    <div class="text-purple-500 font-bold tracking-widest text-xs uppercase mb-2">Hitster Player</div>
+    
+    <!-- Audio Player Bereich -->
+    <div id="player-box" class="hidden">
+      <div class="my-6">
+        <audio id="audio" controls autoplay class="w-full rounded-lg">
+          Dein Browser unterstützt das Audio-Element nicht.
+        </audio>
+      </div>
+
+      <button id="reveal-btn" onclick="reveal()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-4 rounded-xl transition shadow-lg shadow-purple-900/40">
+        👁️ Lösung anzeigen
+      </button>
+    </div>
+
+    <!-- Versteckte Lösung -->
+    <div id="solution" class="hidden mt-6 bg-slate-800 p-4 rounded-2xl border border-slate-700 animate-fade-in">
+      <div id="year" class="text-5xl font-black text-amber-400 mb-1">2000</div>
+      <div id="title" class="text-lg font-bold text-white">Songtitel</div>
+      <div id="artist" class="text-sm text-slate-400">Interpret</div>
+    </div>
+
+    <!-- Fehleranzeige -->
+    <div id="error" class="text-slate-500 py-8 text-sm">
+      Lade Song...
+    </div>
+
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const trackId = params.get('id');
+
+    if (trackId) {
+      fetch('tracks.json')
+        .then(res => res.json())
+        .then(data => {
+          const track = data[trackId];
+          if (track) {
+            document.getElementById('audio').src = track.audio_url;
+            document.getElementById('year').innerText = track.year;
+            document.getElementById('title').innerText = track.title;
+            document.getElementById('artist').innerText = track.artist;
+            
+            document.getElementById('error').classList.add('hidden');
+            document.getElementById('player-box').classList.remove('hidden');
+          } else {
+            document.getElementById('error').innerText = '❌ Song-ID nicht gefunden.';
+          }
+        })
+        .catch(() => {
+          document.getElementById('error').innerText = '❌ Fehler beim Laden der tracks.json.';
+        });
+    } else {
+      document.getElementById('error').innerText = '📱 Bitte einen gültigen QR-Code scannen.';
+    }
+
+    function reveal() {
+      document.getElementById('solution').classList.remove('hidden');
+      document.getElementById('reveal-btn').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
